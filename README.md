@@ -4,9 +4,9 @@ simple binary redirection with args and envs injection.
 
 ## what is this used for
 
-I got into a situation at work where a program A launched another program B.
+I got into a situation at work where a program A launched another program B.  
 I had the need to enable some debug feature flags on B when called by A,  
-without having to rebuild A or launch B with a manually copyied setup.
+without having to rebuild A or launch B with a manually copied setup.
 
 ## how does this work
 
