@@ -1,4 +1,6 @@
 use serde::{Deserialize, Serialize};
+use std::fs::File;
+use std::io::Write;
 use std::{env, process::Command, process::exit};
 
 const RUNTIME_PAYLOAD: &str = env!("RUNTIME_PAYLOAD");
@@ -6,7 +8,11 @@ const RUNTIME_PAYLOAD: &str = env!("RUNTIME_PAYLOAD");
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct RuntimePayload {
     path: String,
+
+    #[serde(default)]
     args: Vec<String>,
+
+    #[serde(default)]
     envs: Vec<(String, String)>,
 }
 
@@ -24,16 +30,42 @@ impl RuntimePayload {
     }
 }
 
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct ReportPayload {
+    args: Vec<String>,
+    envs: Vec<(String, String)>,
+}
+
+impl ReportPayload {
+    pub fn new() -> Self {
+        let mut envs: Vec<(String, String)> = std::env::vars().collect();
+        envs.sort_by_key(|(a, _)| a.clone());
+
+        Self {
+            args: std::env::args().collect(),
+            envs,
+        }
+    }
+}
+
 fn main() {
     if RUNTIME_PAYLOAD.is_empty() {
         setup();
     } else {
+        report();
         launch();
     }
 }
 
 fn setup() {
     todo!();
+}
+
+fn report() {
+    let report = ReportPayload::new();
+    let text = serde_json::to_string(&report).unwrap();
+    let mut file = File::create("bin-proxy_report.json").unwrap();
+    file.write_all(text.as_bytes()).unwrap();
 }
 
 fn launch() {
